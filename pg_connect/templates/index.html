@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Find a PG | PG Connect{% endblock %}
+{% block content %}
+<section class="hero p-4 p-md-5 mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-7">
+      <span class="eyebrow">YOUR NEXT CITY, MADE EASIER</span>
+      <h1 class="display-5 fw-bold mt-2">Find your place.<br><span class="text-accent">Feel at home.</span></h1>
+      <p class="lead text-secondary">Explore PGs by budget, location, facilities and available beds near your college or workplace.</p>
+      <div class="d-flex flex-wrap gap-2"><span class="feature-chip">✓ Room-level availability</span><span class="feature-chip">✓ Budget filters</span><span class="feature-chip">✓ Owner requests</span></div>
+    </div>
+    <div class="col-lg-5"><div class="hero-card"><div class="hero-icon">⌂</div><h4 class="fw-bold">A better way to find a PG</h4><p class="mb-0 text-secondary">Compare monthly rent, deposit, facilities, floor and room details before you contact an owner.</p></div></div>
+  </div>
+</section>
+<div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+  <div><h2 class="section-title mb-1">Explore stays</h2><p class="text-secondary mb-0">{{ listings|length }} matching listing(s)</p></div>
+  {% if session.get('role') == 'owner' %}<a class="btn btn-brand" href="{{ url_for('add_pg') }}">+ Add a PG</a>{% endif %}
+</div>
+<form class="filter-panel mb-4" method="get">
+  <div class="row g-3">
+    <div class="col-6 col-lg-3"><label class="form-label">City</label><input class="form-control" name="city" value="{{ filters.city }}" placeholder="e.g. Pune"></div>
+    <div class="col-6 col-lg-3"><label class="form-label">Area / neighbourhood</label><input class="form-control" name="area" value="{{ filters.area }}" placeholder="e.g. Hinjewadi"></div>
+    <div class="col-6 col-lg-3"><label class="form-label">Max monthly rent (₹)</label><input class="form-control" type="number" min="0" name="max_rent" value="{{ filters.max_rent }}" placeholder="10000"></div>
+    <div class="col-6 col-lg-3"><label class="form-label">Room type</label><select class="form-select" name="room_type"><option value="">Any room</option>{% for t in ['Single','Double sharing','Shared'] %}<option {{ 'selected' if filters.room_type==t }}>{{ t }}</option>{% endfor %}</select></div>
+    <div class="col-6 col-lg-3"><label class="form-label">Facility</label><select class="form-select" name="facility"><option value="">Any facility</option>{% for t in ['Wi-Fi','Food','Laundry','AC','Parking','Housekeeping','Study area'] %}<option {{ 'selected' if filters.facility==t }}>{{ t }}</option>{% endfor %}</select></div>
+    <div class="col-6 col-lg-3"><label class="form-label">Office / college / landmark</label><input class="form-control" name="destination" value="{{ filters.destination }}" placeholder="e.g. IT Park"></div>
+    <div class="col-6 col-lg-3"><label class="form-label">Max commute (minutes)</label><input class="form-control" type="number" min="0" name="max_commute" value="{{ filters.max_commute }}" placeholder="20"></div>
+    <div class="col-6 col-lg-3"><label class="form-label">Minimum available beds</label><select class="form-select" name="min_beds">{% for n in ['1','2','3','4'] %}<option value="{{ n }}" {{ 'selected' if filters.min_beds==n or (not filters.min_beds and n=='1') }}>{{ n }}+</option>{% endfor %}</select></div>
+  </div>
+  <div class="d-flex gap-2 mt-3"><button class="btn btn-brand" type="submit">Search PGs</button><a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Reset</a></div>
+</form>
+<div class="row g-4">
+{% for pg in listings %}
+  <div class="col-md-6 col-xl-4">
+    <article class="pg-card h-100">
+      {% if pg.photo_url %}<img class="pg-photo" src="{{ pg.photo_url }}" alt="Photo of {{ pg.name }}" onerror="this.style.display='none'">{% else %}<div class="pg-placeholder"><span>⌂</span><small>PG CONNECT · {{ pg.city|upper }}</small></div>{% endif %}
+      <div class="p-3 p-lg-4">
+        <div class="d-flex justify-content-between align-items-start gap-2"><div><div class="small text-accent fw-semibold">{{ pg.area }}, {{ pg.city }}</div><h5 class="fw-bold mt-1 mb-1">{{ pg.name }}</h5></div><span class="availability">{{ pg.available_beds }} beds</span></div>
+        <div class="rent mt-3">₹{{ "{:,}".format(pg.monthly_rent) }} <span>/ month</span></div>
+        <div class="small text-secondary mt-1">Deposit ₹{{ "{:,}".format(pg.deposit) }} · {{ pg.room_type }}</div>
+        <div class="facility-row mt-3">{% for f in pg.facilities.split(',')[:4] if f %}<span>{{ f }}</span>{% endfor %}</div>
+        <div class="small text-secondary mt-3">⌖ {{ pg.nearest_landmark or pg.area }}{% if pg.commute_minutes %} · approx. {{ pg.commute_minutes }} min{% endif %}</div>
+        <a href="{{ url_for('pg_detail', pg_id=pg.id) }}" class="btn btn-brand w-100 mt-3">View rooms & details</a>
+      </div>
+    </article>
+  </div>
+{% else %}
+  <div class="col-12"><div class="empty-state"><div class="display-6">⌕</div><h4>No PGs match these filters</h4><p class="text-secondary">Try a different area, a higher budget, or fewer filters.</p><a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Clear filters</a></div></div>
+{% endfor %}
+</div>
+{% endblock %}

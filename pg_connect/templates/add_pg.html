@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Add a PG | PG Connect{% endblock %}
+{% block content %}
+<a href="{{ url_for('owner_dashboard') }}" class="back-link">← Owner dashboard</a>
+<div class="content-panel mt-3"><span class="eyebrow">OWNER TOOLS</span><h2 class="fw-bold mt-2">Publish a PG listing</h2><p class="text-secondary">Enter the property details and add the first room. You can add more rooms from your dashboard.</p>
+<form method="post" class="mt-4">
+<h5 class="form-section-title">Property details</h5><div class="row g-3">
+<div class="col-md-6"><label class="form-label">PG name *</label><input class="form-control" name="name" required></div>
+<div class="col-md-3"><label class="form-label">City *</label><input class="form-control" name="city" required placeholder="Pune"></div>
+<div class="col-md-3"><label class="form-label">Area *</label><input class="form-control" name="area" required placeholder="Hinjewadi"></div>
+<div class="col-12"><label class="form-label">Full address *</label><input class="form-control" name="address" required></div>
+<div class="col-12"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="3"></textarea></div>
+<div class="col-md-4"><label class="form-label">Monthly rent (₹) *</label><input class="form-control" name="monthly_rent" type="number" min="0" required></div>
+<div class="col-md-4"><label class="form-label">Deposit (₹) *</label><input class="form-control" name="deposit" type="number" min="0" value="0" required></div>
+<div class="col-md-4"><label class="form-label">Room type *</label><select class="form-select" name="room_type"><option>Shared</option><option>Double sharing</option><option>Single</option></select></div>
+<div class="col-md-4"><label class="form-label">Gender policy</label><select class="form-select" name="gender_policy"><option>Any</option><option>Men</option><option>Women</option><option>Family</option></select></div>
+<div class="col-md-4"><label class="form-label">Nearest office / college / landmark</label><input class="form-control" name="nearest_landmark"></div>
+<div class="col-md-4"><label class="form-label">Estimated commute (minutes)</label><input class="form-control" name="commute_minutes" type="number" min="0" placeholder="15"></div>
+<div class="col-12"><label class="form-label">Photo URL (optional)</label><input class="form-control" name="photo_url" type="url" placeholder="https://example.com/pg-photo.jpg"><div class="form-text">Use a photo URL you have permission to share. Uploads are not supported in this MVP.</div></div>
+<div class="col-12"><label class="form-label d-block">Facilities</label><div class="d-flex flex-wrap gap-3">{% for f in ['Wi-Fi','Food','Laundry','AC','Parking','Housekeeping','Study area','Water purifier','CCTV','Power backup'] %}<label class="form-check"><input class="form-check-input" type="checkbox" name="facilities" value="{{ f }}"><span class="form-check-label">{{ f }}</span></label>{% endfor %}</div></div>
+</div>
+<hr class="my-4"><h5 class="form-section-title">First room & bed availability</h5><div class="row g-3">
+<div class="col-md-3"><label class="form-label">Floor number</label><input class="form-control" type="number" name="floor_number" value="0"></div>
+<div class="col-md-3"><label class="form-label">Room number</label><input class="form-control" name="room_number" value="101" required></div>
+<div class="col-md-3"><label class="form-label">Total beds</label><input class="form-control" type="number" min="1" name="total_beds" value="2" required></div>
+<div class="col-md-3"><label class="form-label">Available beds</label><input class="form-control" type="number" min="0" name="available_beds" value="2" required></div>
+</div><div class="mt-4"><button class="btn btn-brand">Publish PG listing</button><a class="btn btn-outline-secondary ms-2" href="{{ url_for('owner_dashboard') }}">Cancel</a></div>
+</form></div>
+{% endblock %}

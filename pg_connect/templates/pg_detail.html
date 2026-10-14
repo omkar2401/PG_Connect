@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ pg.name }} | PG Connect{% endblock %}
+{% block content %}
+<a href="{{ url_for('index') }}" class="back-link">← Back to listings</a>
+<div class="row g-4 mt-1">
+  <div class="col-lg-7">
+    {% if pg.photo_url %}<img class="detail-photo" src="{{ pg.photo_url }}" alt="Photo of {{ pg.name }}">{% else %}<div class="detail-placeholder"><span>⌂</span><div>YOUR NEXT CITY, MADE EASIER</div></div>{% endif %}
+    <div class="content-panel mt-3"><span class="eyebrow">{{ pg.area }}, {{ pg.city }}</span><h1 class="fw-bold mt-2">{{ pg.name }}</h1><p class="text-secondary">{{ pg.description or 'A PG stay listed on PG Connect.' }}</p>
+      <div class="row g-3 mt-2"><div class="col-6"><div class="mini-stat"><span>Monthly rent from</span><strong>₹{{ "{:,}".format(pg.monthly_rent) }}</strong></div></div><div class="col-6"><div class="mini-stat"><span>Refundable / stated deposit</span><strong>₹{{ "{:,}".format(pg.deposit) }}</strong></div></div></div>
+      <h5 class="fw-bold mt-4">Facilities</h5><div class="facility-row">{% for f in pg.facilities.split(',') if f %}<span>{{ f }}</span>{% else %}<span>Ask owner for details</span>{% endfor %}</div>
+      <h5 class="fw-bold mt-4">Location & connectivity</h5><p class="mb-1">📍 {{ pg.address }}</p><p class="text-secondary">Nearest landmark: {{ pg.nearest_landmark or 'Not specified' }}{% if pg.commute_minutes %} · Owner-estimated commute: about {{ pg.commute_minutes }} minutes{% endif %}</p>
+      <p class="small text-secondary mb-0">Connectivity time is provided by the owner and is not a live route estimate.</p>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="content-panel"><div class="d-flex justify-content-between align-items-center"><h4 class="fw-bold mb-0">Rooms & beds</h4><span class="availability">{{ pg.available_beds }} beds available</span></div>
+      <p class="small text-secondary mt-2">Check the floor, room number and live-listed availability below.</p>
+      <div class="table-responsive"><table class="table align-middle room-table"><thead><tr><th>Floor</th><th>Room</th><th>Type</th><th>Beds</th><th>Rent/mo.</th></tr></thead><tbody>
+      {% for r in rooms %}<tr><td>{{ 'Ground' if r.floor_number==0 else r.floor_number }}</td><td>{{ r.room_number }}</td><td>{{ r.room_type }}</td><td><strong>{{ r.available_beds }}</strong> / {{ r.total_beds }}</td><td>₹{{ "{:,}".format(r.monthly_rent) }}</td></tr>{% else %}<tr><td colspan="5">No rooms added yet.</td></tr>{% endfor %}
+      </tbody></table></div>
+    </div>
+    <div class="content-panel mt-3"><h4 class="fw-bold">Interested in this PG?</h4><p class="text-secondary small">Send a request to the owner. Your bed is not reserved until the owner confirms.</p>
+    {% if session.get('role') == 'seeker' %}
+    <form method="post" action="{{ url_for('request_booking',pg_id=pg.id) }}">
+      <label class="form-label">Preferred room (optional)</label><select class="form-select mb-3" name="room_id"><option value="">Let owner suggest a room</option>{% for r in rooms if r.available_beds>0 %}<option value="{{ r.id }}">Floor {{ 'Ground' if r.floor_number==0 else r.floor_number }}, Room {{ r.room_number }} · {{ r.available_beds }} bed(s) · ₹{{ r.monthly_rent }}/month</option>{% endfor %}</select>
+      <label class="form-label">Expected move-in date</label><input class="form-control mb-3" type="date" name="move_in_date">
+      <label class="form-label">Message to owner</label><textarea class="form-control mb-3" name="message" rows="3" placeholder="Tell the owner about your needs"></textarea>
+      <button class="btn btn-brand w-100" {% if pg.available_beds<1 %}disabled{% endif %}>Request a booking</button>
+    </form>
+    {% elif not session.get('user_id') %}<a class="btn btn-brand w-100" href="{{ url_for('login') }}">Log in to request a booking</a>
+    {% else %}<p class="small text-secondary mb-0">PG owners can browse listings but cannot request a booking from their owner account.</p>{% endif %}
+    <hr><div class="small text-secondary">Listed by {{ pg.owner_name }}{% if pg.owner_phone %}<br>Contact number: {{ pg.owner_phone }}{% endif %}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
